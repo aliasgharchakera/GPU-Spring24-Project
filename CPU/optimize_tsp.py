@@ -27,7 +27,7 @@ problem = TSP
 pop_sizes = [150] * TOTAL_CASES
 num_offsprings = [70] * TOTAL_CASES
 num_iterations = [10] * TOTAL_CASES
-num_gens = [10000] * TOTAL_CASES
+num_gens = [1000] * TOTAL_CASES
 mutation_rates = [0.5] * TOTAL_CASES
 
 optimization_TSP_BSF = list_of_problems(problem,
@@ -53,6 +53,10 @@ for i in range(TOTAL_CASES):
     op: Optimization = optimization_TSP_BSF[i]
     op.plot_BSF()
 
-for i in range(TOTAL_CASES):
-    op_a: Optimization = optimization_TSP_ASF[i]
-    op_a.plot_ASF()
+# for i in range(TOTAL_CASES):
+#     op_a: Optimization = optimization_TSP_ASF[i]
+#     op_a.plot_ASF()
+    
+# for i in range(TOTAL_CASES):
+#     op: Optimization = optimization_TSP_BSF[i]
+#     op.plot_fitness()

@@ -144,3 +144,28 @@ class Optimization:
         plt.plot(df["Average"])
         plt.savefig("Analysis/" + filename + ".png")
         plt.close()
+
+    def plot_fitness(self) -> None:
+        """Plots the best and average fitness of the evolution"""
+        best_gen = [0]
+        best_fitness = []
+        for i in range(self.number_of_iterations):
+            print(f"Iteration {i + 1}")
+            fitness = self.evolve().run()
+            if best_gen.max() < fitness.max():
+                best_gen = fitness
+            best_fitness.append(fitness.max())
+        
+        print("Best Fitness: ", best_gen.max())
+        print("Average Fitness: ", sum(best_fitness) / len(best_fitness))
+        
+        x = list(range(len(best_gen)))
+        y = best_gen
+        
+        plt.plot(x, y)
+        plt.savefig("Analysis/" + self.get_filename("BSF") + ".png")
+        
+        plt.plot(best_fitness)
+        plt.savefig("Analysis/" + self.get_filename("ASF") + ".png")
+        plt.close()
+        
