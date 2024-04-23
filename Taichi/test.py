@@ -51,10 +51,11 @@ def crossover(parent1: int, parent2: int, child: int):
 def initialize_population():
     for i in range(POPULATION_SIZE):
         for j in range(GENOME_LENGTH):
-            population[i, j] = random.randint(0, 1)
+            population[i, j] = int(random.random()*10)
 
 def run_evolution():
     initialize_population()
+    # print(population)
     for generation in range(NUM_GENERATIONS):
         evaluate()
         new_population = np.zeros((POPULATION_SIZE, GENOME_LENGTH), dtype=int)
@@ -68,3 +69,4 @@ def run_evolution():
 
 if __name__ == "__main__":
     run_evolution()
+    print(fitness)
