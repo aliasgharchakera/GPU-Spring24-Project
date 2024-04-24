@@ -8,15 +8,13 @@ const int ISLANDS =  num_blocks * num_threads;
 
 const char filename[] = "qa194.tsp";
 const int num_cities = 194;
-const float city_x[194];
-const float city_y[194];
 
 // GA config
 const int num_generations = 50;
 const float mutation_ratio= 0.2;
 const int print_interval = 100;
 
-const int tournament_size = 50;
+const int tournament_size = 2;
 //#define ELITISM    false
 
 const float city_x[] = {
