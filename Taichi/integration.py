@@ -7,15 +7,15 @@ ti.init(arch=ti.cpu)  # Initialize Taichi to use the CPU
 #constants
 POPULATION_SIZE = 10
 GENOME_LENGTH = 10
-MUTATION_RATE = 0.01
-GENERATIONS = 1
+MUTATION_RATE = 0.2
+GENERATIONS = 10
 OFFSPRINGS = 2
 
 population = ti.field(dtype=ti.i32, shape=(POPULATION_SIZE, GENOME_LENGTH))
 fitness = ti.field(dtype=ti.f32, shape=POPULATION_SIZE)
 
 parents = ti.field(dtype=ti.i32, shape=(2))
-offsprings = ti.field(dtype=ti.i32, shape=(OFFSPRINGS))
+remove = ti.field(dtype=ti.i32, shape=(OFFSPRINGS))
 
 # Example usage:
 city_coords_array = np.array([
@@ -72,6 +72,31 @@ def truncation(values: ti.template(), top: ti.template()):
             dummy[1] = val
             top[1] = i
 
+@ti.kernel
+def truncation_opp(values: ti.template(), top:ti.template()):
+    n = values.shape[0]
+    dummy = [1000000] * top.shape[0]
+
+    # Find bottom values
+    for i in range(n):
+        val = values[i]
+        if val < dummy[0]:
+            dummy[1] = dummy[0]
+            top[1] = top[0]
+            dummy[0] = val
+            top[0] = i
+        elif val < dummy[1]:
+            dummy[1] = val
+            top[1] = i
+
+def mutate(gene):
+    for i in range(GENOME_LENGTH):
+        j = random.randint(0,GENOME_LENGTH-1)
+        temp = gene[i]
+        gene[i] = gene[j]
+        gene[j] = temp
+
+
 def initialize_population():
     for i in range(POPULATION_SIZE):
         arr = [i for i in range(GENOME_LENGTH)]
@@ -79,6 +104,18 @@ def initialize_population():
         for j in range(GENOME_LENGTH):
             population[i, j] = arr[j]
         # population[i, j] = int(random.random() * 10)
+
+def crossover(parent1, parent2):
+    start, end = sorted([random.randint(0, GENOME_LENGTH - 1) for _ in range(2)])
+    diff = end-start
+    child = [-1] * diff
+    child[0:diff] = parent1[start:end]
+    for i in parent2:
+        if i not in child:
+            child.append(i)
+    if random.random() < MUTATION_RATE:
+        mutate(child)
+    return child
 
 def run():
     initialize_population()
@@ -90,10 +127,21 @@ def run():
                 local_arr[j] = population[chr, j]
             fitness[chr] = calculate_fitness(city_coords, local_arr)
         truncation(fitness, parents)
-        for 
-
+        parent1 = []
+        parent2 = []
+        for i in range(GENOME_LENGTH):
+            parent1.append(population[parents[0],i])
+            parent2.append(population[parents[1],i])
+        offspring1 = crossover(parent1,parent2)
+        offspring2 = crossover(parent2,parent1)
+        truncation_opp(fitness, remove)
+        for i in range(GENOME_LENGTH):
+            population[remove[0],i] = offspring1[i]
+            population[remove[1],i] = offspring2[i]
 
 run()
 # print(parents)
-# print(fitness.to_numpy())
+print(fitness.to_numpy())
 # print(population)
+# print(type(population))
+# print(population[0])
