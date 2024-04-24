@@ -1,8 +1,20 @@
 import taichi as ti
 import numpy as np
 import random
+import sys
 
-ti.init(arch=ti.cpu)  # Initialize Taichi to use the CPU
+if len(sys.argv) > 1:
+    device = sys.argv[1]
+    if device == "cpu":
+        ti.init(arch=ti.cpu)  # Initialize Taichi to use the CPU
+    elif device == "gpu":
+        ti.init(arch=ti.gpu)  # Initialize Taichi to use the GPU
+    else:
+        print("Invalid device specified. Defaulting to CPU.")
+        ti.init(arch=ti.cpu)
+else:
+    ti.init(arch=ti.cpu)  # Default to CPU if no device specified
+
 
 #constants
 POPULATION_SIZE = 10
@@ -139,9 +151,6 @@ def run():
             population[remove[0],i] = offspring1[i]
             population[remove[1],i] = offspring2[i]
 
+
 run()
-# print(parents)
 print(fitness.to_numpy())
-# print(population)
-# print(type(population))
-# print(population[0])
