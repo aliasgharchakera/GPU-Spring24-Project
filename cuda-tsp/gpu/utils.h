@@ -137,4 +137,36 @@ __device__ int getFittestTourIndex(int* tournament, float* tournament_cost,
     return fittest;
 }
 
+// read qa194.tsp and extract number of cities and the coordinates array
+void readTSPFile(const char* filename, int* num_cities, float* city_x, float* city_y) {
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error: Could not open file %s\n", filename);
+        exit(1);
+    }
+
+    char line[256];
+    while (fgets(line, sizeof(line), file)) {
+        if (strstr(line, "DIMENSION") != NULL) {
+            sscanf(line, "DIMENSION : %d", num_cities);
+            break;
+        }
+    }
+
+    int i = 0;
+    while (fgets(line, sizeof(line), file)) {
+        if (strstr(line, "NODE_COORD_SECTION") != NULL) {
+            while (fgets(line, sizeof(line), file)) {
+                if (strstr(line, "EOF") != NULL) {
+                    break;
+                }
+                sscanf(line, "%*d %f %f", &city_x[i], &city_y[i]);
+                i++;
+            }
+        }
+    }
+
+    fclose(file);
+}
+
 
