@@ -2,6 +2,7 @@ import taichi as ti
 import numpy as np
 import random
 import sys
+import tsplib95
 
 if len(sys.argv) > 1:
     device = sys.argv[1]
@@ -18,7 +19,7 @@ else:
 
 #constants
 POPULATION_SIZE = 10
-GENOME_LENGTH = 10
+GENOME_LENGTH = 194
 MUTATION_RATE = 0.2
 GENERATIONS = 10
 OFFSPRINGS = 2
@@ -30,22 +31,35 @@ parents = ti.field(dtype=ti.i32, shape=(2))
 remove = ti.field(dtype=ti.i32, shape=(OFFSPRINGS))
 
 # Example usage:
-city_coords_array = np.array([
-    [0, 0],
-    [1, 2],
-    [3, 1],
-    [2, 4],
-    [5, 2],
-    [4, 6],
-    [7, 8],
-    [9, 10],
-    [11, 12],
-    [13, 14]
-])
+# city_coords_array = np.array([
+#     [0, 0],
+#     [1, 2],
+#     [3, 1],
+#     [2, 4],
+#     [5, 2],
+#     [4, 6],
+#     [7, 8],
+#     [9, 10],
+#     [11, 12],
+#     [13, 14]
+# ])
+
+# Loading ..Dataset/qa194.tsp
+with open("Datasets/qa194.tsp") as f:
+    text = f.read()
+
+problem = tsplib95.parse(text)
+num_nodes = int(problem.dimension)
+city_coords_array = np.zeros((num_nodes, 2))
+
+for node in range(1, num_nodes + 1):
+    city_coords_array[node - 1] = problem.node_coords[node]
 
 city_coords = ti.Vector.field(2, dtype=float, shape=len(city_coords_array))
 for i in range(len(city_coords_array)):
     city_coords[i] = city_coords_array[i]
+
+# print(city_coords_array)
 
 @ti.func
 def euclidean_distance(x1, y1, x2, y2):
@@ -70,7 +84,7 @@ def calculate_fitness(city_coords: ti.template(), chromosome: ti.template()) -> 
 @ti.kernel
 def truncation(values: ti.template(), top: ti.template()):
     n = values.shape[0]
-    dummy = [0] * top.shape[0]
+    dummy = [0.0] * top.shape[0]
 
     # Find top values
     for i in range(n):
@@ -87,7 +101,7 @@ def truncation(values: ti.template(), top: ti.template()):
 @ti.kernel
 def truncation_opp(values: ti.template(), top:ti.template()):
     n = values.shape[0]
-    dummy = [1000000] * top.shape[0]
+    dummy = [1000000.0] * top.shape[0]
 
     # Find bottom values
     for i in range(n):
