@@ -1,6 +1,5 @@
 // Kernel config
 // Grid size
-#include "utils.h"
 
 const int num_blocks = 1;
 const int num_threads = 96;
