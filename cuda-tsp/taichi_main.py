@@ -1,5 +1,6 @@
 from taichi_utils import *
 import taichi as ti
+import time
 
 ti.init(arch=ti.cpu)
 
@@ -81,11 +82,11 @@ def run():
                 citymap[i*num_cities+j] = max_val*max_val
     
     initialize_random_population(citymap)
-    print("Num islands:", ISLANDS)
-    print("Population size:", ISLANDS*num_cities)
+    # print("Num islands:", ISLANDS)
+    # print("Population size:", ISLANDS*num_cities)
 
     fittest = get_fittest_score()
-    print("min distance",population_cost[fittest])
+    # print("min distance",population_cost[fittest])
 
     population_d = ti.field(dtype=ti.i32, shape=(ISLANDS*num_cities))
     copy_array(population,population_d)
@@ -96,28 +97,27 @@ def run():
     citymap_d = ti.field(dtype=ti.f32, shape=(num_cities*num_cities))
     copy_array(citymap,citymap_d)
     parent_cities_d = ti.field(dtype=ti.i32, shape=(ISLANDS*2*num_cities))
-
     get_population_fitness(population_d, population_cost_d, population_fitness_d, citymap_d)
-
+    start_time = time.time()
     for i in range(num_generations):
-        # parent1 = ti.field(dtype=ti.i32, shape=(num_cities))
         selection(population_d,population_cost_d,population_fitness_d,parent_cities_d)
-
         for j in range(num_cities):
             crossover(population_d,population_cost_d,population_fitness_d,parent_cities_d,citymap_d)
-
         mutation(population_d)
-
         get_population_fitness(population_d, population_cost_d, population_fitness_d, citymap_d)
-
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print("EA execution time:", execution_time, "seconds")
     copy_array_taichi(population_fitness_d,population_fitness)
     copy_array_taichi(population_cost_d,population_cost)
-    # copy_array_taichi(population_d,population)
     fittest = get_fittest_score()
-    # print(type(fittest))
-    # print(len(population_fitness))
-    print("min distance",population_cost[fittest])
+    # print("min distance",population_cost[fittest])
 
+if __name__ == "__main__":
+    start_time = time.time()
 
+    run()
 
-run()
+    end_time = time.time()
+    execution_time = end_time - start_time
+    print("Total time:", execution_time, "seconds")
