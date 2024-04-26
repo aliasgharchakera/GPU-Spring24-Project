@@ -58,21 +58,20 @@ def select_two_random() -> ti.types.vector(2, ti.i32):
 
 @ti.kernel
 def run_selection_and_crossover():
-    for i in range(iterations):
-        for j in range(generations):
-            best_fitness = float('inf')
-            best_index = 0
-            for k in range(population_size):
-                if fitness[k] < best_fitness:
-                    best_fitness = fitness[k]
-                    best_index = k
-            for m in range(chromosome_size):
-                best_chromosomes[j, m] = population[best_index, m]
-            best_fitnesses[j] = best_fitness
-            # Genetic operations
-            for k in range(offspring_size):
-                indices = select_two_random()
-                crossover_and_mutate(indices[0], indices[1], k)
+    for j in range(generations):
+        best_fitness = float('inf')
+        best_index = 0
+        for k in range(population_size):
+            if fitness[k] < best_fitness:
+                best_fitness = fitness[k]
+                best_index = k
+        for m in range(chromosome_size):
+            best_chromosomes[j, m] = population[best_index, m]
+        best_fitnesses[j] = best_fitness
+        # Genetic operations
+        for k in range(offspring_size):
+            indices = select_two_random()
+            crossover_and_mutate(indices[0], indices[1], k)
 
 @ti.func
 def crossover_and_mutate(parent1_idx: int, parent2_idx: int, store_idx: int):
