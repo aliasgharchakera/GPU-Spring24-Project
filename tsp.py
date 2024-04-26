@@ -1,4 +1,5 @@
 import taichi as ti
+import time
 
 ti.init(arch=ti.cpu)
 
@@ -16,7 +17,7 @@ fitness = ti.field(dtype=ti.float32, shape=max_population)
 # Selection Parameters
 population_size = 100
 offspring_size = 50
-generations = 50
+generations = 5000
 mutation_rate = 0.05
 iterations = 10
 tournament_size = 2
@@ -86,21 +87,22 @@ def select_two_random() -> ti.types.vector(2, ti.i32):
 
 @ti.kernel
 def run_selection_and_crossover():
-    for j in range(generations):
-        best_fitness = float('inf')
-        best_index = 0
-        # TODO: make the best fitness computation on CPU 
-        for k in range(population_size):
-            if fitness[k] < best_fitness:
-                best_fitness = fitness[k]
-                best_index = k
-        for m in range(chromosome_size):
-            best_chromosomes[j, m] = population[best_index, m]
-        best_fitnesses[j] = best_fitness
-        # Genetic operations
-        for k in range(offspring_size):
-            indices = select_two_random()
-            crossover_and_mutate(indices[0], indices[1], k)
+    for _ in range(1):
+        for j in range(generations):
+            best_fitness = float('inf')
+            best_index = 0
+            # TODO: make the best fitness computation on CPU 
+            for k in range(population_size):
+                if fitness[k] < best_fitness:
+                    best_fitness = fitness[k]
+                    best_index = k
+            for m in range(chromosome_size):
+                best_chromosomes[j, m] = population[best_index, m]
+            best_fitnesses[j] = best_fitness
+            # Genetic operations
+            for k in range(offspring_size):
+                indices = select_two_random()
+                crossover_and_mutate(indices[0], indices[1], k)
 
 @ti.func
 def crossover_and_mutate(parent1_idx: int, parent2_idx: int, store_idx: int):
@@ -120,15 +122,26 @@ def crossover_and_mutate(parent1_idx: int, parent2_idx: int, store_idx: int):
 
 @ti.kernel
 def print_best_individuals():
-    for i in range(generations):
-        print(f"Generation {i+1}: Best Fitness = {best_fitnesses[i]}")
-        print("Chromosome:", end=" ")
-        for j in range(chromosome_size):
-            print(best_chromosomes[i, j], end=" ")
-        print()
+    for i in range(generations / 50):
+        print(f"Generation {i*50+1}: Best Fitness = {best_fitnesses[i*50]}")
+        # print("Chromosome:", end=" ")
+        # for j in range(chromosome_size):
+        #     print(best_chromosomes[i, j], end=" ")
+        # print()
 
+start = time.time()
 copy_array(coords_x, coords_xt)
 copy_array(coords_y, coords_yt)
+end = time.time()
+print("Time taken to copy arrays:", (end - start) * 1000)
+
+start = time.time()
 init_population()
+end = time.time()
+print("Time taken to initialize population:", (end - start) * 1000)
+
+start = time.time()
 run_selection_and_crossover()
-print_best_individuals()
+end = time.time()
+print("Time taken to run selection and crossover:", (end - start) * 1000)
+# print_best_individuals()
