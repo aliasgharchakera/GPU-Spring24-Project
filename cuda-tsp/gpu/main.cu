@@ -181,6 +181,10 @@ int main() {
     }
 
     initalizeRandomPopulation(population, population_cost, population_fitness, citymap);
+    printf("Initial Population Generated\n");
+    for(int i=0; i<num_cities; i++) {
+        printf(population[i]);
+    }
 
     int fittest = getFittestScore(population_fitness);
     printf("min distance: %f\n", population_cost[fittest]);
