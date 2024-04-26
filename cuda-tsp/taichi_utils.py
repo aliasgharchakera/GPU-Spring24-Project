@@ -53,18 +53,6 @@ def evaluate_route_taichi(population_d,population_cost_d,population_fitness_d,ci
         if distance != 0:
             population_fitness_d[i // num_cities] = 1.0 / distance
 
-    # print(type(i))
-    # distance = 0
-    # for j in range(num_cities-1):
-    #     distance += citymap_d[population_d[i*num_cities + j]*num_cities + population_d[i*num_cities + j+1]]
-    # distance += citymap_d[population_d[i*num_cities + num_cities-1]*num_cities + population_d[i*num_cities]]
-
-    # population_cost[i] = distance
-
-    # population_fitness[i] = 0
-    # if population_cost[i] != 0:
-    #     population_fitness[i] = (1.0/population_cost[i])
-
 def evaluate_route(citymap, i):
     # print(type(i))
     distance = 0
@@ -98,7 +86,6 @@ def tournamentSelection(population: ti.template(), population_cost:ti.template()
     tournament_fitness = ti.Vector.zero(ti.f32, tournament_size)
 
     for i in range(tournament_size):
-        # Get random number from global random state on GPU
         random_num = int(ti.random()*ISLANDS)
 
         for c in range(num_cities):
@@ -111,6 +98,19 @@ def tournamentSelection(population: ti.template(), population_cost:ti.template()
     fittest_route = ti.Vector.zero(ti.i32, num_cities)
     for c in range(num_cities):
         fittest_route[c] = tournament[fittest, c]
+
+    return fittest_route
+
+@ti.func
+def truncationSelection(population: ti.template(), population_fitness: ti.template()) -> ti.template():
+    num_selected = ISLANDS // 2  # Select top half of the population
+    
+    # Sort population based on fitness
+    sorted_indices = ti.argsort(population_fitness, direction='reverse')
+    
+    fittest_route = ti.Vector.zero(ti.i32, num_cities)
+    for c in range(num_cities):
+        fittest_route[c] = population[sorted_indices[tid], c]
 
     return fittest_route
 
