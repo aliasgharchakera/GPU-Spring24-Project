@@ -7,27 +7,26 @@ ti.init(arch=ti.cpu)
 chromosome_size = 194
 max_population = 100
 
-#data
-
-
-# Fields
-population = ti.field(dtype=ti.int32, shape=(max_population, chromosome_size))
-fitness = ti.field(dtype=ti.float32, shape=max_population)
-
 # Selection Parameters
-population_size = 100
-offspring_size = 50
-generations = 5000
+population_size = 10
+offspring_size = 5
+generations = 1
 mutation_rate = 0.05
 iterations = 10
 tournament_size = 2
+
+# Fields
+population = ti.field(dtype=ti.int32, shape=(population_size, chromosome_size))
+offsprings = ti.field(dtype=ti.int32, shape=(offspring_size, chromosome_size))
+fitness = ti.field(dtype=ti.int32, shape=population_size)
+
 
 coords_xt = ti.field(dtype=ti.float32, shape=chromosome_size)
 coords_yt = ti.field(dtype=ti.float32, shape=chromosome_size)
 
 # Best individuals tracking
-best_chromosomes = ti.field(dtype=ti.int32, shape=(50, chromosome_size))
-best_fitnesses = ti.field(dtype=ti.float32, shape=50)
+best_chromosomes = ti.field(dtype=ti.int32, shape=(generations, chromosome_size))
+best_fitnesses = ti.field(dtype=ti.int32, shape=generations)
 
 # Initialize coordinates
 coords_x = [24748.3333, 24758.8889, 24827.2222, 24904.4444, 24996.1111, 25010.0, 25030.8333, 25067.7778, 25100.0, 25103.3333, 25121.9444, 25150.8333, 25158.3333, 25162.2222, 25167.7778, 25168.8889, 25173.8889, 25210.8333, 25211.3889, 25214.1667, 25214.4444, 25223.3333, 25224.1667, 25233.3333, 25234.1667, 25235.5556, 25235.5556, 25242.7778, 25243.0556, 25252.5, 25253.8889, 25253.8889, 25256.9444, 25263.6111, 25265.8333, 25266.6667, 25266.6667, 25270.5556, 25270.8333, 25270.8333, 25275.8333, 25277.2222, 25278.3333, 25278.3333, 25279.1667, 25281.1111, 25281.3889, 25283.3333, 25283.6111, 25284.7222, 25286.1111, 25286.1111, 25286.6667, 25287.5, 25288.0556, 25290.8333, 25291.9444, 25292.5, 25298.6111, 25300.8333, 25306.9444, 25311.9444, 25313.8889, 25315.2778, 25316.6667, 25320.5556, 25322.5, 25325.2778, 25326.6667, 25337.5, 25339.1667, 25340.5556, 25341.9444, 25358.8889, 25363.6111, 25368.6111, 25374.4444, 25377.7778, 25396.9444, 25400.0, 25400.0, 25404.7222, 25416.9444, 25416.9444, 25419.4444, 25429.7222, 25433.3333, 25440.8333, 25444.4444, 25451.3889, 25459.1667, 25469.7222, 25478.0556, 25480.5556, 25483.3333, 25490.5556, 25492.2222, 25495.0, 25495.0, 25497.5, 25500.8333, 25510.5556, 25531.9444, 25533.3333, 25538.8889, 25545.8333, 25549.7222, 25550.0, 25560.2778, 25566.9444, 25567.5, 25574.7222, 25585.5556, 25609.4444, 25610.2778, 25622.5, 25645.8333, 25650.0, 25666.9444, 25683.8889, 25686.3889, 25696.1111, 25700.8333, 25708.3333, 25716.6667, 25717.5, 25723.0556, 25734.7222, 25751.1111, 25751.9444, 25758.3333, 25765.2778, 25772.2222, 25775.8333, 25779.1667, 25793.3333, 25808.3333, 25816.6667, 25823.6111, 25826.6667, 25829.7222, 25833.3333, 25839.1667, 25847.7778, 25850.0, 25856.6667, 25857.5, 25857.5, 25866.6667, 25867.7778, 25871.9444, 25872.5, 25880.8333, 25883.0556, 25888.0556, 25900.0, 25904.1667, 25928.3333, 25937.5, 25944.7222, 25950.0, 25951.6667, 25957.7778, 25958.3333, 25966.6667, 25983.3333, 25983.6111, 26000.2778, 26008.6111, 26016.6667, 26021.6667, 26033.3333, 26033.3333, 26033.6111, 26033.6111, 26048.8889, 26050.0, 26050.2778, 26050.5556, 26055.0, 26067.2222, 26074.7222, 26076.6667, 26077.2222, 26078.0556, 26083.6111, 26099.7222, 26108.0556, 26116.6667, 26123.6111, 26123.6111, 26133.3333, 26133.3333, 26150.2778]
@@ -75,7 +74,46 @@ def calculate_fitness(i: int):
     dy = coords_yt[index_last] - coords_yt[index_first]
     total_distance += ti.sqrt(dx * dx + dy * dy)
 
-    fitness[i] = total_distance
+    fitness[i] = int(total_distance)
+
+@ti.func
+def select_two_truncation() -> ti.types.vector(2, ti.i32):
+    idx1 = 0
+    idx2 = 1
+    for i in range(2, population_size):
+        if fitness[i] > fitness[idx1]:
+            idx1 = i
+        elif fitness[i] > fitness[idx2]:
+            idx2 = i
+    # print(idx1,idx2)
+    return ti.Vector([idx1, idx2])
+
+@ti.func
+def truncation_selection():
+    indexes = ti.Vector([0]*offspring_size)
+    minimum = -1
+    # print(indexes)
+    for i in range(offspring_size):
+        min_index = find_min_index(fitness,minimum)
+        # print(i,"th time",min_index)
+        # print(idx)
+        indexes[i] = min_index
+        minimum = fitness[min_index]
+    # print(indexes)
+    select_survivors(indexes)
+
+@ti.func
+def find_min_index(fitness: ti.template(), minimum: int):
+    # print("minimum is",minimum)
+    min_idx = 0
+    y = 1000000
+    for i in range(fitness.shape[0]):
+        # print("checking for ",i,fitness[i])
+        if fitness[i] < y and fitness[i] > minimum:
+            # print("haan bhai true che")
+            min_idx = i
+            y = fitness[i]
+    return min_idx
 
 @ti.func
 def select_two_random() -> ti.types.vector(2, ti.i32):
@@ -84,6 +122,21 @@ def select_two_random() -> ti.types.vector(2, ti.i32):
     while idx1 == idx2:
         idx2 = ti.random(ti.int32) % population_size
     return ti.Vector([idx1, idx2])
+
+@ti.func
+def random_selection():
+    indexes = ti.Vector([0]*offspring_size)
+    # print(indexes)
+    for i in range(offspring_size):
+        indexes[i] = ti.random(ti.int32) % population_size
+    # print(indexes)
+    select_survivors(indexes)
+
+@ti.func
+def select_survivors(indexes:ti.template()):
+    for i in range(len(indexes)):
+        for j in range(chromosome_size):
+            population[indexes[i], j] = offsprings[i, j]
 
 @ti.kernel
 def run_selection_and_crossover():
@@ -98,20 +151,22 @@ def run_selection_and_crossover():
                     best_index = k
             for m in range(chromosome_size):
                 best_chromosomes[j, m] = population[best_index, m]
-            best_fitnesses[j] = best_fitness
+            best_fitnesses[j] = int(best_fitness)
             # Genetic operations
             for k in range(offspring_size):
-                indices = select_two_random()
+                indices = select_two_truncation()
                 crossover_and_mutate(indices[0], indices[1], k)
+            truncation_selection()
+            # print(corpses)
 
 @ti.func
 def crossover_and_mutate(parent1_idx: int, parent2_idx: int, store_idx: int):
     crossover_point = ti.random(ti.int32) % chromosome_size
     for i in range(chromosome_size):
         if i < crossover_point:
-            population[store_idx, i] = population[parent1_idx, i]
+            offsprings[store_idx, i] = population[parent1_idx, i]
         else:
-            population[store_idx, i] = population[parent2_idx, i]
+            offsprings[store_idx, i] = population[parent2_idx, i]
         # Mutation chance
         if ti.random(ti.float32) < mutation_rate:
             swap_idx = ti.random(ti.int32) % chromosome_size
@@ -142,6 +197,7 @@ print("Time taken to initialize population:", (end - start) * 1000)
 
 start = time.time()
 run_selection_and_crossover()
+print(fitness)
 end = time.time()
 print("Time taken to run selection and crossover:", (end - start) * 1000)
-# print_best_individuals()
+print_best_individuals()
