@@ -114,7 +114,9 @@ def select_survivors(indexes:ti.template()):
 @ti.kernel
 def run_selection_and_crossover():
     for _ in range(1):
-        for j in range(generations):
+        # pass
+        for j in range(generation):
+            # pass
             best_fitness = float('inf')
             best_index = 0
             # TODO: make the best fitness computation on CPU 
@@ -165,7 +167,7 @@ tournament_size = 2
 generations = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]
 population_sizes = [10, 20, 50, 100, 200, 500, 1000]
 offsprings_sizes = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
-selection_scheme = ["truncation", "random", "tournament"]
+selection_scheme = ["truncation", "random"]
 cities = ["qa194.tsp", "ch71009.tsp"]
 
 results = []
