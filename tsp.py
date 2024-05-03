@@ -2,7 +2,7 @@ import taichi as ti
 import time
 from run import read_file
 
-ti.init(arch=ti.cpu)
+ti.init(arch=ti.gpu)
 
 
 def copy_array(arr, field):
@@ -168,7 +168,7 @@ generations = [10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000]
 population_sizes = [10, 20, 50, 100, 200, 500, 1000]
 offsprings_sizes = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
 selection_scheme = ["truncation", "random"]
-cities = ["qa194.tsp", "ch71009.tsp"]
+cities = ["qa194.tsp"]
 
 results = []
 
@@ -201,4 +201,8 @@ for city in cities:
                     end = time.time()
                     results.append([city, generation, population_size, offspring_size, 'Truncation', (lap-start)*1000, (end-lap)*1000])    
     
-print(results)
+# write the results to a file
+with open("results.csv", "w") as f:
+    f.write("city,generations,population_size,offspring_size,scheme,init_time,run_time\n")
+    for result in results:
+        f.write(",".join(map(str, result)) + "\n")
