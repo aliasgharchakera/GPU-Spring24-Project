@@ -178,7 +178,7 @@ for city in cities:
         for population_size in population_sizes:
             for offspring_ratio in offsprings_sizes:
                 offspring_size = int(population_size * offspring_ratio)
-                for scheme in selection_scheme:
+                for i in range(3):
                     coords_xt = ti.field(dtype=ti.float32, shape=chromosome_size)
                     coords_yt = ti.field(dtype=ti.float32, shape=chromosome_size)
                     copy_array(coords_x, coords_xt)
@@ -199,6 +199,6 @@ for city in cities:
                     lap = time.time()
                     run_selection_and_crossover()
                     end = time.time()
-                    results.append([city, generation, population_size, offspring_size, scheme, (lap-start)*1000, (end-lap)*1000])    
+                    results.append([city, generation, population_size, offspring_size, 'Truncation', (lap-start)*1000, (end-lap)*1000])    
     
 print(results)
