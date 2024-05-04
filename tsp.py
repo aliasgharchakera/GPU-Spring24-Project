@@ -196,8 +196,10 @@ for city in cities:
 
                     start = time.time()
                     init_population()
+                    ti.sync()
                     lap = time.time()
                     run_selection_and_crossover()
+                    ti.sync()
                     end = time.time()
                     results.append([city, generation, population_size, offspring_size, 'Truncation', (lap-start)*1000, (end-lap)*1000])    
     
