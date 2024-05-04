@@ -6,3 +6,9 @@ __pycache__/
 # C extensions
 *.so
 Resources
+
+# tex files
+*.aux
+*.log
+*.synctex.gz
+*.zip

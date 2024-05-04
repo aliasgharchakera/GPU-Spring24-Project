@@ -1,0 +1,249 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Taichi Based GPU Accelerated Evolutionary Algorithm}
+
+\author{\IEEEauthorblockN{Ali Asghar Chakera}
+    \IEEEauthorblockA{\textit{Department of Computer Science} \\
+        \textit{Habib University}\\
+        Karachi, Pakistan \\
+        ay06993@st.habib.edu.pk}
+    \and
+    \IEEEauthorblockN{Mustafa Sohail}
+    \IEEEauthorblockA{\textit{Department of Computer Science} \\
+        \textit{Habib University}\\
+        Karachi, Pakistan \\
+        ms06860@st.habib.edu.pk}
+    \and
+    \IEEEauthorblockN{Muhammad Mobeen Movania}
+    \IEEEauthorblockA{\textit{Department of Computer Science} \\
+        \textit{Habib University}\\
+        Karachi, Pakistan \\
+        mobeen.movania@sse.habib.edu.pk}
+}
+
+\maketitle
+
+\begin{abstract}
+    Evolutionary algorithms (EAs) have gained significant attention as powerful optimization techniques across various domains due to their ability to efficiently explore solution spaces and find near-optimal solutions. However, the computational demands of EAs, especially for large-scale optimization problems, have prompted the exploration of parallel and GPU-accelerated implementations to enhance their performance. In this paper, we introduce a novel approach leveraging Taichi, a high-performance computing language specifically designed for GPU acceleration, to develop a GPU-accelerated evolutionary algorithm.
+\end{abstract}
+
+\begin{IEEEkeywords}
+    Taichi, GPU, evolutionary algorithms, optimization
+\end{IEEEkeywords}
+
+\section{Introduction}
+Evolutionary algorithms (EAs) are a class of computational techniques inspired
+by the mechanisms of natural evolution, such as selection, mutation, and
+crossover. These algorithms have found widespread application in solving
+complex optimization problems, where traditional methods may struggle due to
+the complexity and scale of the solution space. The core concept behind EAs is
+the iterative generation of candidate solutions, which are evaluated based on a
+predefined fitness function. This function assesses the quality or "fitness" of
+each solution, guiding the evolutionary process toward optimal or near-optimal
+outcomes.
+
+As each iteration requires evaluating the fitness of multiple candidates, the
+computational cost can escalate rapidly, especially for problems with high
+dimensionality or complex evaluation functions. This computational intensity
+can limit the scalability and efficiency of EAs, particularly when applied to
+large-scale or time-sensitive optimization tasks. To address this challenge,
+parallel computing has emerged as a powerful tool. By distributing the
+computational workload across multiple processors or computing nodes, parallel
+computing can significantly reduce the time required to execute evolutionary
+algorithms.
+
+Recent years have seen an increase in the intersection of evolutionary
+algorithms and parallel computing which has opened new avenues for innovation.
+This intersectionality has not only accelerated the performance of EAs but also
+expanded their applicability to a broader range of optimization challenges,
+including real-time applications and large-scale problems.
+
+This paper focuses on the development of a framework for Genetic Algorithms
+(GAs) using Taichi, a state-of-the-art programming language designed
+specifically for parallel computing. Taichi offers a unique architecture for
+high-performance computation which allows developers to write code that can be
+efficiently executed across CPUs, GPUs, and other parallel processing units.
+The main contribution of this paper is introducing a technique for GPU
+accelerated EAs based on Taichi.
+
+The paper is divided into five sections, with section 2 focusing on related
+literature, section 3 discussing the methodologies, section 4 highlighting the
+results, and section 5 discussing the paper in its entirety.
+
+\section{Literature Review}
+The following section will cover the related literature in relation to the
+topic of the paper. Literature review is divided in two sections with first
+solely focusing on parallelism in GAs, section two discussing work that used
+Taichi to optimize EAs in order for a bench-mark to be set.
+
+\subsection{Parallelism in Genetic Algorithms}
+GAs are based on natural selection and genetics. They simulate evolution by
+iteratively evolving a population of candidate solutions to find the best
+outcomes. A GA relies on a population of individuals, or chromosomes, a fitness
+function to evaluate them, and operators for selection and mutation.
+
+During a GA's execution, multiple chromosomes are evolved and evaluated
+simultaneously, presenting an opportunity to use parallel computing to speed up
+the process. With parallel architecture, each chromosome can be generated and
+evaluated independently, allowing exploration of the solution space in
+parallel. Synchronization is needed only during the selection and crossover
+phases, when the entire population is evaluated and knowledge sharing occurs.
+
+According to Hart et al [1], Parallel Genetic Algorithms (PGAs) have the
+ability to fend off premature convergence which makes them an ideal solution
+technique. This is on top of the fact that PGAs reduce time to locate a
+solution and improve the quality of the solution when compared to GAs. The
+technique used by Alba et al in [2] uses many elementary GAs performing the
+reproductive plan on their own sub-populations. The number of elementary GAs is
+another free parameter for Alba et al which they use to their own advantage.
+
+CUDA has been used to solve optimization problems using parallel computing.
+Cekmez et al [3] uses nVidia's CUDA Random Number Generation Library (cuRAND)
+using GPU's available cores to maximize the parallel throughput. Additionally,
+each chromosome is handled in parallel using CUDA. Findings from [3] reported
+that the parallel model solved the optimization problem in 1777 times faster
+thus highlighting the importance of parallelization. Huang et al [4] aims to
+efficiently solve the scheduling problem using the parallelization provided by
+CUDA. The results from the paper highlighted that the parallel approach was 19
+times faster on 200 jobs for the scheduling algorithm.
+
+Attempts on parallelization of the evolutionary process using CUDA has been
+successful in the past when tested on a range of different optimization
+problems such as TSP, JSSP, or knapsack.
+
+\subsection{Taichi}
+Taichi, developed at the CSAIL lab at the Massachusetts Institute of Technology
+(MIT), is a Python-embedded programming language designed for high-performance
+parallel computing. It provides significant performance boosts both during
+development and at runtime. Taichi has been used in the past for computer
+graphics and image segmentation purposes. The original paper on Taichi [5]
+highlights how when the performance is compute-bound, our access optimizer can
+greatly improve performance by reducing access instruction.
+
+Taichi is particularly well-suited for accelerating Genetic Algorithms (GAs)
+due to its emphasis on parallelism and efficiency. It merges the simplicity and
+flexibility of Python with the speed and computational power of low-level
+parallel programming. One of its key features is its ability to seamlessly
+offload computations to GPUs, enabling large-scale parallel processing.
+
+The intuitive integration with Python is a major advantage, as Python is widely
+used and familiar to many developers. This seamless integration allows Python
+users to harness the power of Taichi without needing to learn a new syntax or
+undergo extensive retraining. As a result, developers can quickly prototype and
+deploy GA simulations, gaining the benefits of high performance with minimal
+additional effort.
+
+However, owing to the fact that Taichi language is relatively new, literature
+and work carried out on the language was sparse. To the best of the research
+teams capabilities, we were unable to find parallelization techniques of EAs
+using Taichi.
+
+\section{Methodology}
+The methodology section will cover the implementation details of the
+experiment. The section is divided into two parts, the first part will cover
+the implementation of the GA using Taichi and the second part will cover the
+implementation of the TSP problem.
+
+\subsection{Genetic Algorithm using Taichi}
+The Genetic Algorithm (GA) was implemented using the Taichi programming
+language. The GA follows the standard evolutionary process, with the following
+components:
+
+\begin{itemize}
+\item \textbf{Initialization
+    :} The GA starts by initializing a population of candidate solutions.
+Each solution is represented as a chromosome, which encodes a potential
+solution to the optimization problem. The population size and chromosome
+length are configurable parameters.
+
+\item \textbf{Evaluation
+    :} The fitness of each chromosome is evaluated using a predefined
+fitness function. This function assesses the quality of the solution encoded
+by the chromosome, guiding the evolutionary process toward optimal or
+near-optimal solutions.
+
+\item \textbf{Selection
+    :} A selection mechanism is used to choose parent chromosomes for
+reproduction based on their fitness. Higher fitness chromosomes are more
+likely to be selected, mimicking the natural selection process.
+
+\item \textbf{Crossover
+    :} The selected parent chromosomes undergo crossover, where genetic
+information is exchanged to create new offspring. This process introduces
+diversity into the population, allowing exploration of the solution space.
+
+\item \textbf{Mutation
+    :} To further enhance diversity, mutation is applied to the offspring
+chromosomes. This process introduces random changes to the genetic
+information, preventing premature convergence and promoting exploration.
+
+\item \textbf{Replacement
+    :} The offspring chromosomes replace the least fit members of the
+population, ensuring that the population evolves over time. This process
+repeats for a specified number of generations or until a termination
+condition is met.
+\end{itemize}
+
+\section{Results}
+\subsection{System Configuration}
+The system used for the experiments was a desktop computer with the following
+specifications:
+
+\subsubsection{CPU Specifications}
+\begin{itemize}
+    \item Intel Core i7-9700K @ 3.60GHz
+    \item 8 Cores, 8 Threads
+    \item 64 GB DDR4 2133 MHz RAM
+\end{itemize}
+
+\subsubsection{GPU Specifications}
+\begin{itemize}
+    \item NVIDIA RTX Titan
+    \item 4608 CUDA Cores
+    \item 24 GB GDDR6 VRAM
+    \item 384-bit Memory Bus
+\end{itemize}
+
+\subsection{Experimental Setup}
+The experiments were conducted using the Traveling Salesman Problem (TSP) as
+the optimization problem. The TSP is a classic combinatorial optimization
+problem that involves finding the shortest possible route that visits a set of
+cities exactly once and returns to the starting city. The objective is to
+minimize the total distance traveled.
+
+\section{Conclusion and Discussion}
+
+\section{Bibliography}
+
+\begin{enumerate}
+    \item Hart, W. E., Baden, S., Belew, R. K., \& Kohn, S. (1996, April). Analysis of
+          the numerical effects of parallelism on a parallel genetic algorithm. In
+          Proceedings of International Conference on Parallel Processing (pp. 606-612).
+          IEEE.
+    \item Alba, E., \& Troya, J. M. (2002). Improving flexibility and efficiency by
+          adding parallelism to genetic algorithms. Statistics and Computing, 12(2),
+          91-114.
+    \item Cekmez, U., Ozsiginan, M., \& Sahingoz, O. K. (2013, November). Adapting the GA
+          approach to solve Traveling Salesman Problems on CUDA architecture. In 2013
+          IEEE 14th International Symposium on Computational Intelligence and Informatics
+          (CINTI) (pp. 423-428). IEEE.
+    \item Huang, C. S., Huang, Y. C., \& Lai, P. J. (2012). Modified genetic algorithms
+          for solving fuzzy flow shop scheduling problems and their implementation with
+          CUDA. Expert Systems with Applications, 39(5), 4999-5005.
+    \item Hu, Y., Li, T. M., Anderson, L., Ragan-Kelley, J., \& Durand, F. (2019).
+          Taichi: a language for high-performance computation on spatially sparse data
+          structures. ACM Transactions on Graphics (TOG), 38(6), 1-16.
+\end{enumerate}
+
+\end{document}
