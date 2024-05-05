@@ -24,7 +24,7 @@ def copy_array(arr, field):
     for i in range(len(arr)):
         field[i] = arr[i]
 
-# @ti.kernel
+@ti.kernel
 def init_population():
     print("kernel launched")
     for i in range(population_size):
@@ -33,7 +33,7 @@ def init_population():
         shuffle(i)
         calculate_fitness(i)
 
-# @ti.func
+@ti.func
 def shuffle(ind):
     # We will use a decrementing loop manually since Ti doesn't support three-argument range
     i = chromosome_size - 1
@@ -44,7 +44,7 @@ def shuffle(ind):
         population[ind, j] = temp
         i -= 1  # Manually decrement i
 
-# @ti.func
+@ti.func
 def calculate_fitness(i: int):
     total_distance = 0.0
     for j in range(chromosome_size - 1):
@@ -65,7 +65,7 @@ def calculate_fitness(i: int):
 
     fitness[i] = int(total_distance)
 
-# @ti.func
+@ti.func
 def select_two_truncation() -> ti.types.vector(2, ti.i32):
     idx1 = 0
     idx2 = 1
@@ -77,7 +77,7 @@ def select_two_truncation() -> ti.types.vector(2, ti.i32):
     # print(idx1,idx2)
     return ti.Vector([idx1, idx2])
 
-# @ti.func
+@ti.func
 def truncation_selection():
     indexes = ti.Vector([0]*offspring_size)
     minimum = -1
@@ -91,7 +91,7 @@ def truncation_selection():
     # print(indexes)
     select_survivors(indexes)
 
-# @ti.func
+@ti.func
 def find_min_index(fitness: ti.template(), minimum: int):
     # print("minimum is",minimum)
     min_idx = 0
@@ -104,7 +104,7 @@ def find_min_index(fitness: ti.template(), minimum: int):
             y = fitness[i]
     return min_idx
 
-# @ti.func
+@ti.func
 def select_two_random() -> ti.types.vector(2, ti.i32):
     idx1 = ti.random(ti.int32) % population_size
     idx2 = ti.random(ti.int32) % population_size
@@ -112,7 +112,7 @@ def select_two_random() -> ti.types.vector(2, ti.i32):
         idx2 = ti.random(ti.int32) % population_size
     return ti.Vector([idx1, idx2])
 
-# @ti.func
+@ti.func
 def random_selection():
     indexes = ti.Vector([0]*offspring_size)
     # print(indexes)
@@ -121,13 +121,13 @@ def random_selection():
     # print(indexes)
     select_survivors(indexes)
 
-# @ti.func
+@ti.func
 def select_survivors(indexes:ti.template()):
     for i in range(len(indexes)):
         for j in range(chromosome_size):
             population[indexes[i], j] = offsprings[i, j]
 
-# @ti.kernel
+@ti.kernel
 def run_selection_and_crossover():
     print("selection kernel launched")
     for _ in range(1):
@@ -151,7 +151,7 @@ def run_selection_and_crossover():
             truncation_selection()
             # print(corpses)
 
-# @ti.func
+@ti.func
 def crossover_and_mutate(parent1_idx: int, parent2_idx: int, store_idx: int):
     crossover_point = ti.random(ti.int32) % chromosome_size
     for i in range(chromosome_size):
@@ -167,7 +167,7 @@ def crossover_and_mutate(parent1_idx: int, parent2_idx: int, store_idx: int):
             population[store_idx, swap_idx] = temp
     calculate_fitness(store_idx)
 
-# @ti.kernel
+@ti.kernel
 def print_best_individuals():
     for i in range(generations / 50):
         print(f"Generation {i*50+1}: Best Fitness = {best_fitnesses[i*50]}")

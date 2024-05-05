@@ -1,1 +1,0 @@
-time num_gen pop_size selection_scheme
