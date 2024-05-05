@@ -212,13 +212,26 @@ problem that involves finding the shortest possible route that visits a set of
 cities exactly once and returns to the starting city. The objective is to
 minimize the total distance traveled. The TSP is a challenging problem due to
 its factorial complexity, making it an ideal candidate for testing the efficacy
-of evolutionary algorithms.
+of evolutionary algorithms. The dataset used for the TSP experiments contains
+the coordinates of the cities.
+
+% Show the TSP dataset here
+\begin{equation*}
+    \textbf{Dataset: } [(x_1, y_1), (x_2, y_2), \dots, (x_n, y_n)]
+\end{equation*}
 
 \subsubsection{Problem Representation}
 In the context of the TSP, each chromosome represents a potential solution to
 the problem. The chromosome encodes the order in which cities are visited,
 forming a tour that starts and ends at the same city. The fitness of the
 chromosome is determined by the total distance traveled along the tour.
+% Show the chromosome representation here
+\begin{equation*}
+    \textbf{Chromosome: } [1, 2, 3, 4, \dots, n]
+\end{equation*}
+
+Here, the numbers represent the index of the cities in the dataset, indicating
+the order in which they are visited in the tour.
 
 \subsubsection{Fitness Function}
 The fitness function for the TSP evaluates the total distance traveled along
@@ -226,6 +239,23 @@ the tour encoded by the chromosome. The distance between each pair of adjacent
 cities is calculated using a distance matrix, which contains the distances
 between all pairs of cities. The fitness of the chromosome is the sum of the
 distances between consecutive cities in the tour.
+
+% Show the fitness function here
+\begin{equation*}
+    \textbf{Fitness: } f = \sum_{i=1}^{n-1} d(i, i+1) + d(n, 1)
+\end{equation*}
+
+Where $d(i, j)$ represents the distance between city $i$ and city $j$ in the
+dataset.
+
+\subsubsection{Selection}
+The selection process in the TSP GA involves choosing parent chromosomes based
+on their fitness. In the context of the TSP, the selection mechanism aims to
+favor chromosomes with shorter tour lengths, as they represent better solutions
+to the problem. In the experiments, we used truncation selection to choose the
+parent chromosomes. Truncation selection selects the top $k$ chromosomes from
+the population based on their fitness, where $k$ depends on the offspring
+population size. 
 
 \subsubsection{Crossover and Mutation}
 The crossover and mutation operators for the TSP are designed to preserve the
@@ -235,6 +265,46 @@ introduces random changes to the tour. Both operators are implemented to
 maintain the integrity of the tour representation and ensure that the resulting
 solutions are valid TSP tours.
 
+In this research, we used point crossover and swap mutation as the genetic
+operators for the TSP. Point crossover involves selecting a random point in the
+chromosome and exchanging the genetic information beyond that point between the
+parent chromosomes.
+
+% Show the point crossover here
+\begin{equation*}
+    \textbf{Parent 1: } [3, 1, 4, 2, 5]
+\end{equation*}
+\begin{equation*}
+    \textbf{Parent 2: } [5, 2, 1, 4, 3]
+\end{equation*}
+\begin{equation*}
+    \textbf{Offspring 1: } [3, 1, 4, 5, 2]
+\end{equation*}
+\begin{equation*}
+    \textbf{Offspring 2: } [5, 2, 4, 3, 1]
+\end{equation*}
+
+To maintain the validity of the tour representation, the offspring chromosomes
+are then repaired using a repair operator that ensures that each city is
+visited exactly once in the tour. The repair operator loops through the the
+parent chromosome until an unvisited city is found and adds it to the
+offspring.
+
+Swap mutation involves selecting two random points in the chromosome and
+swapping the cities at those points. This introduces random changes to the tour
+while maintaining the validity of the solution.
+
+% Show the swap mutation here
+\begin{equation*}
+    \textbf{Chromosome: } [3, 1, 4, 2, 5]
+\end{equation*}
+\begin{equation*}
+    \textbf{Mutated Chromosome: } [3, 4, 1, 2, 5]
+\end{equation*}
+
+The mutation and crossover operators are applied iteratively to the population
+of chromosomes, guiding the evolutionary process toward optimal or near-optimal
+solutions to the TSP.
 \section{Experimentation and Results}
 \subsection{System Configuration}
 The system used for the experiments was a desktop computer with the following
@@ -262,7 +332,6 @@ runtime performance of the GA using Taichi and leverage the GPU acceleration to
 speed up the evolutionary process.
 
 \subsection{Results}
-
 
 \section{Conclusion and Discussion}
 
