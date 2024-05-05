@@ -8,6 +8,7 @@
 \usepackage{textcomp}
 \usepackage{xcolor}
 \usepackage{listings}
+\usepackage{float}
 \lstset{
 basicstyle=\small\ttfamily,
 columns=flexible,
@@ -336,8 +337,29 @@ introduce diversity in the initial population.
 
 Taichi provides a kernel decorator to define parallel kernels that can be
 executed on the GPU. The outer loop in the init\_population kernel is executed
-in parallel, with each thread handling a different chromosome in the population.
+in parallel, with each thread handling a different chromosome in the
+population.
 
+\subsubsection{Fitness Evaluation}
+Evaluating the fitness of each chromosome in the population is a
+computationally intensive task, especially for large populations or complex
+fitness functions. However, calculating the fitness of each chromosome can be
+parallelized as it involves independent computations for each chromosome. The
+fitness function was implemented as a Taichi func that computes the total
+distance traveled along the tour encoded by the chromosome on the GPU.
+
+\subsubsection{Selection and Crossover}
+The selection and crossover operator was implemented as a Taichi kernel that
+selects parent chromosomes based on their fitness. Each pair of parent
+chromosomes undergoes crossover to create offspring chromosomes. This process
+is parallelized using Taichi's GPU capabilities, with each thread handling a
+different pair of parent chromosomes.
+
+The rest of the GA operators, including mutation and replacement remain the
+same as the standard GA implementation running sequentially. The
+parallelization of the selection and crossover operators significantly
+accelerates the evolutionary process, reducing the time required to find
+optimal or near-optimal solutions to the TSP.
 
 \section{Experimentation and Results}
 \subsection{System Configuration}
@@ -370,9 +392,61 @@ The results of the experiments demonstrated the effectiveness of the GPU
 accelerated GA implemented using Taichi. The runtime performance of the GA was
 significantly improved by leveraging the parallel computing capabilities of the
 GPU.
-\section{Future Work and Conclusion}
 
-\section{Bibliography}
+The experiments were conducted using different population sizes and
+generational counts to evaluate the impact on the runtime performance of the
+GA. The results showed that increasing the population size and the number of
+generations led to better solutions but also increased the runtime. However,
+the GPU acceleration provided by Taichi helped reduce the runtime of the GA,
+allowing for faster convergence to optimal or near-optimal solutions.
+
+% Show the runtime comparison graph for different population sizes here
+\begin{figure}[H]
+    \centerline{\includegraphics[width=0.5\textwidth]{runtime_vs_population_size.png}}
+    \caption{Runtime Comparison for Different Population Sizes}
+    \label{fig:1}
+\end{figure}
+
+In Figure \ref*{fig:1}, the runtime comparison graph illustrates the runtime
+performance of the GPU-accelerated GA and the CPU-based GA for different
+population sizes. The results show that the GPU-accelerated GA performed
+significantly better than the CPU-based GA, with speedups observed for larger
+population sizes.
+
+% Show the runtime comparison graph for different generational counts here
+\begin{figure}[H]
+    \centerline{\includegraphics[width=0.5\textwidth]{runtime_vs_generations.png}}
+    \caption{Runtime Comparison for Different Generational Counts}
+    \label{fig:2}
+\end{figure}
+
+Similarly, in Figure \ref*{fig:2}, the runtime comparison graph illustrates the
+runtime performance of the GPU-accelerated GA and the CPU-based GA for
+different generational counts. The results show that the GPU-accelerated GA was
+faster than the CPU-based GA, however, we see that even with the GPU
+acceleration, we still see a linear increase in runtime with the increase in
+generational counts, this is due to the fact that the genetic operators are
+still running sequentially. To further optimize the parallelization of the GA,
+we can explore different techniques for parallelizing the genetic operators and
+selection strategies such as Island Model.
+\section{Future Work and Conclusion}
+In this paper, we introduced a novel approach to developing a GPU-accelerated
+evolutionary algorithm using Taichi, a high-performance computing language
+designed for parallel processing. The experiments conducted on the Traveling
+Salesman Problem (TSP) benchmark dataset demonstrated the effectiveness of the
+GPU-accelerated GA implemented using Taichi in optimizing the runtime
+performance of the evolutionary process.
+
+For future work, we plan to extend the experiments to other optimization
+problems and datasets to evaluate the scalability and performance of the
+GPU-accelerated GA implemented using Taichi. Additionally, we aim to explore
+different genetic operators and selection strategies to further enhance the
+efficiency and effectiveness of the evolutionary process. Furthermore, Taichi
+provides support for manual thread management which can be used to further
+optimize the parallelization of the GA. Moreover, for analysis, the performance
+of the GA implemented using Taichi can be compared with other parallel
+computing frameworks such as CUDA and PyCUDA to evaluate the relative
+performance and efficiency of the GPU-accelerated GA. \section*{Bibliography}
 
 \begin{enumerate}
     \item Hart, W. E., Baden, S., Belew, R. K., \& Kohn, S. (1996, April). Analysis of

@@ -71,8 +71,8 @@ for i in population_data_cpu.values():
         if j[0] == 10000:
             y_cpu_population.append(j[1])
 
-plt.plot(x_population, y_gpu_population, label='GPU')
-plt.plot(x_population, y_cpu_population, label='CPU')
+plt.plot(x_population, y_gpu_population, label='GPU', color='C0')
+plt.plot(x_population, y_cpu_population, label='CPU', color='C1')
 plt.title('Runtime vs Population Size (Generations: 10k)')
 plt.xlabel('Population Size')
 plt.ylabel('Runtime (seconds)')
