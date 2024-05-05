@@ -44,7 +44,7 @@ plt.title('GPU Runtime vs Population Size (Generations: 10k)')
 plt.xlabel('Population Size')
 plt.ylabel('Runtime (seconds)')
 plt.grid(True)
-plt.show()
+# plt.show()
 
 
 # Plot GPU runtime vs Generations (keeping population size constant at 1k)
@@ -57,23 +57,23 @@ for i in population_data_gpu.items():
             x_generation.append(j[0])
             y_gpu_generation.append(j[1])
 
-plt.plot(x_generation, y_gpu_generation, marker='o')
+# plt.plot(x_generation, y_gpu_generation, marker='o')
 plt.title('GPU Runtime vs Generations (Population Size: 1k)')
 plt.xlabel('Generations')
 plt.ylabel('Runtime (seconds)')
 plt.grid(True)
-plt.show()
+# plt.show()
 
 # Plot GPU runtime vs Offspring Variation
 x_offspring = list(range(50, 351, 50))
 # print(x_offspring)
 # print(offspring_variation)
-plt.plot(x_offspring, offspring_variation, marker='o')
+# plt.plot(x_offspring, offspring_variation, marker='o')
 plt.title('GPU Runtime vs Offspring Variation')
 plt.xlabel('Offspring Variation')
 plt.ylabel('Runtime (seconds)')
 plt.grid(True)
-plt.show()
+# plt.show()
 
 y_cpu_population = []
 x_population = list(population_data_cpu.keys())
@@ -100,9 +100,9 @@ for i in population_data_cpu.items():
             x_generation.append(j[0])
             y_cpu_generation.append(j[1])
 
-plt.plot(x_generation, y_cpu_generation, marker='o')
+# plt.plot(x_generation, y_cpu_generation, marker='o')
 plt.title('CPU Runtime vs Generations (Population Size: 1k)')
 plt.xlabel('Generations')
 plt.ylabel('Runtime (seconds)')
 plt.grid(True)
-plt.show()
+# plt.show()

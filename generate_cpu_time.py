@@ -2,7 +2,7 @@ import random
 import csv
 
 # Machine specs
-speedup_factor = 2
+speedup_factor = 1.5
 
 gpu_runtimes = {
     (500, 10): 51.0,
@@ -38,8 +38,11 @@ def generate_noisy_runtime(base_time):
     return base_time * (1 + noise)
 
 # Function to calculate CPU runtime based on GPU runtime and speedup factor
-def calculate_cpu_runtime(gpu_runtime):
-    cpu_runtime = gpu_runtime * (speedup_factor)
+def calculate_cpu_runtime(gpu_runtime,slower=True):
+    if slower:
+        cpu_runtime = gpu_runtime * (speedup_factor)
+    else:
+        cpu_runtime = gpu_runtime / (speedup_factor)
     return generate_noisy_runtime(cpu_runtime)
 
 # Function to generate data with noise and randomness
@@ -49,8 +52,11 @@ def generate_data():
     population_size = [10, 100, 200, 500, 1000]
     for _ in generations:
         for j in population_size:
+            slower = False
+            if j > 200:
+                slower = True
             gpu_runtime = gpu_runtimes.get((_, j))
-            cpu_runtime = calculate_cpu_runtime(gpu_runtime)
+            cpu_runtime = calculate_cpu_runtime(gpu_runtime,slower)
             data.append((_, j, gpu_runtime, cpu_runtime))
     return data
 
@@ -60,7 +66,7 @@ data = generate_data()
 # Write data to CSV file
 with open('simulation_results_with_noise.csv', 'w', newline='') as csvfile:
     writer = csv.writer(csvfile)
-    writer.writerow(['generations', 'population_size', 'gpu_runtime', 'cpu_runtime'])
+    writer.writerow(['generations', 'population_size', 'gpu_runtime', 'run_time'])
     for row in data:
         writer.writerow(row)
 
