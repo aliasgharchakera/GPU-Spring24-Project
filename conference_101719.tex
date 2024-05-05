@@ -160,42 +160,82 @@ The Genetic Algorithm (GA) was implemented using the Taichi programming
 language. The GA follows the standard evolutionary process, with the following
 components:
 
-\begin{itemize}
-\item \textbf{Initialization
-    :} The GA starts by initializing a population of candidate solutions.
-Each solution is represented as a chromosome, which encodes a potential
-solution to the optimization problem. The population size and chromosome
-length are configurable parameters.
+\subsubsection{Population Initialization}
+The GA starts by initializing a population of candidate solutions. Each
+solution is represented as a chromosome, which encodes a potential solution to
+the optimization problem. The population size is a configurable parameter that
+influences the diversity of the solutions explored. Since population
+initialization is a parallel process, Taichi's GPU acceleration capabilities
+are leveraged to speed up this step. Each chromosome is generated independently
+and evaluated in parallel, allowing for efficient exploration of the solution
+space.
 
-\item \textbf{Evaluation
-    :} The fitness of each chromosome is evaluated using a predefined
-fitness function. This function assesses the quality of the solution encoded
-by the chromosome, guiding the evolutionary process toward optimal or
-near-optimal solutions.
+\subsubsection{Fitness Evaluation}
+The fitness of each chromosome is evaluated using a predefined fitness
+function. This function assesses the quality of the solution encoded by the
+chromosome, guiding the evolutionary process toward optimal or near-optimal
+solutions. The fitness evaluation is a compute-intensive task that is
+independently performed for each chromosome in the population. By leveraging
+Taichi's parallel computing capabilities, the fitness evaluation process is
+accelerated, allowing for rapid assessment of multiple candidate solutions.
 
-\item \textbf{Selection
-    :} A selection mechanism is used to choose parent chromosomes for
-reproduction based on their fitness. Higher fitness chromosomes are more
-likely to be selected, mimicking the natural selection process.
+\subsubsection{Selection}
+A selection mechanism is used to choose parent chromosomes for reproduction
+based on their fitness. Higher fitness chromosomes are more likely to be
+selected, mimicking the natural selection process. There are various selection
+strategies, such as roulette wheel selection, tournament selection, or rank
+selection, that can be used to guide the parent selection process. The selected
+parent chromosomes are then used to create offspring through crossover and
+mutation for the next generation.
 
-\item \textbf{Crossover
-    :} The selected parent chromosomes undergo crossover, where genetic
-information is exchanged to create new offspring. This process introduces
-diversity into the population, allowing exploration of the solution space.
+\subsubsection{Crossover}
+The selected parent chromosomes undergo crossover, where genetic information is
+exchanged to create new offspring. This process introduces diversity into the
+population, allowing exploration of the solution space. The crossover operation
+is performed in parallel for multiple pairs of parent chromosomes, leveraging
+Taichi's GPU acceleration to speed up the process.
 
-\item \textbf{Mutation
-    :} To further enhance diversity, mutation is applied to the offspring
-chromosomes. This process introduces random changes to the genetic
-information, preventing premature convergence and promoting exploration.
+\subsubsection{Mutation}
+To further enhance diversity, mutation is applied to the offspring chromosomes.
+This process introduces random changes to the genetic information, preventing
+premature convergence and promoting exploration. The mutation operation is
+performed in parallel for all offspring chromosomes.
 
-\item \textbf{Replacement
-    :} The offspring chromosomes replace the least fit members of the
-population, ensuring that the population evolves over time. This process
-repeats for a specified number of generations or until a termination
-condition is met.
-\end{itemize}
+\subsubsection{Replacement}
+The offspring chromosomes replace the least fit members of the population,
+ensuring that the population evolves over time. This process repeats for a
+specified number of generations or until a termination condition is met.
 
-\section{Results}
+\subsection{Traveling Salesman Problem (TSP)}
+The Traveling Salesman Problem (TSP) is a classic combinatorial optimization
+problem that involves finding the shortest possible route that visits a set of
+cities exactly once and returns to the starting city. The objective is to
+minimize the total distance traveled. The TSP is a challenging problem due to
+its factorial complexity, making it an ideal candidate for testing the efficacy
+of evolutionary algorithms.
+
+\subsubsection{Problem Representation}
+In the context of the TSP, each chromosome represents a potential solution to
+the problem. The chromosome encodes the order in which cities are visited,
+forming a tour that starts and ends at the same city. The fitness of the
+chromosome is determined by the total distance traveled along the tour.
+
+\subsubsection{Fitness Function}
+The fitness function for the TSP evaluates the total distance traveled along
+the tour encoded by the chromosome. The distance between each pair of adjacent
+cities is calculated using a distance matrix, which contains the distances
+between all pairs of cities. The fitness of the chromosome is the sum of the
+distances between consecutive cities in the tour.
+
+\subsubsection{Crossover and Mutation}
+The crossover and mutation operators for the TSP are designed to preserve the
+validity of the tour representation. Crossover involves exchanging genetic
+information between parent chromosomes to create offspring, while mutation
+introduces random changes to the tour. Both operators are implemented to
+maintain the integrity of the tour representation and ensure that the resulting
+solutions are valid TSP tours.
+
+\section{Experimentation and Results}
 \subsection{System Configuration}
 The system used for the experiments was a desktop computer with the following
 specifications:
@@ -216,11 +256,13 @@ specifications:
 \end{itemize}
 
 \subsection{Experimental Setup}
-The experiments were conducted using the Traveling Salesman Problem (TSP) as
-the optimization problem. The TSP is a classic combinatorial optimization
-problem that involves finding the shortest possible route that visits a set of
-cities exactly once and returns to the starting city. The objective is to
-minimize the total distance traveled.
+The experiments were conducted using the qa194 TSP benchmark dataset, which
+contains the coordinates of 194 cities in Qatar. The goal was to optimize the
+runtime performance of the GA using Taichi and leverage the GPU acceleration to
+speed up the evolutionary process.
+
+\subsection{Results}
+
 
 \section{Conclusion and Discussion}
 
