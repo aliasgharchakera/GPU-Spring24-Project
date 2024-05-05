@@ -7,6 +7,12 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+\usepackage{listings}
+\lstset{
+basicstyle=\small\ttfamily,
+columns=flexible,
+breaklines=true
+}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -155,29 +161,21 @@ experiment. The section is divided into two parts, the first part will cover
 the implementation of the GA using Taichi and the second part will cover the
 implementation of the TSP problem.
 
-\subsection{Genetic Algorithm using Taichi}
-The Genetic Algorithm (GA) was implemented using the Taichi programming
-language. The GA follows the standard evolutionary process, with the following
-components:
+\subsection{Genetic Algorithm}
+The Genetic Algorithm (GA) follows the standard evolutionary process, with the
+following components:
 
 \subsubsection{Population Initialization}
 The GA starts by initializing a population of candidate solutions. Each
 solution is represented as a chromosome, which encodes a potential solution to
 the optimization problem. The population size is a configurable parameter that
-influences the diversity of the solutions explored. Since population
-initialization is a parallel process, Taichi's GPU acceleration capabilities
-are leveraged to speed up this step. Each chromosome is generated independently
-and evaluated in parallel, allowing for efficient exploration of the solution
-space.
+influences the diversity of the solutions explored.
 
 \subsubsection{Fitness Evaluation}
 The fitness of each chromosome is evaluated using a predefined fitness
 function. This function assesses the quality of the solution encoded by the
 chromosome, guiding the evolutionary process toward optimal or near-optimal
-solutions. The fitness evaluation is a compute-intensive task that is
-independently performed for each chromosome in the population. By leveraging
-Taichi's parallel computing capabilities, the fitness evaluation process is
-accelerated, allowing for rapid assessment of multiple candidate solutions.
+solutions.
 
 \subsubsection{Selection}
 A selection mechanism is used to choose parent chromosomes for reproduction
@@ -191,15 +189,12 @@ mutation for the next generation.
 \subsubsection{Crossover}
 The selected parent chromosomes undergo crossover, where genetic information is
 exchanged to create new offspring. This process introduces diversity into the
-population, allowing exploration of the solution space. The crossover operation
-is performed in parallel for multiple pairs of parent chromosomes, leveraging
-Taichi's GPU acceleration to speed up the process.
+population, allowing exploration of the solution space.
 
 \subsubsection{Mutation}
 To further enhance diversity, mutation is applied to the offspring chromosomes.
 This process introduces random changes to the genetic information, preventing
-premature convergence and promoting exploration. The mutation operation is
-performed in parallel for all offspring chromosomes.
+premature convergence and promoting exploration.
 
 \subsubsection{Replacement}
 The offspring chromosomes replace the least fit members of the population,
@@ -255,7 +250,7 @@ favor chromosomes with shorter tour lengths, as they represent better solutions
 to the problem. In the experiments, we used truncation selection to choose the
 parent chromosomes. Truncation selection selects the top $k$ chromosomes from
 the population based on their fitness, where $k$ depends on the offspring
-population size. 
+population size.
 
 \subsubsection{Crossover and Mutation}
 The crossover and mutation operators for the TSP are designed to preserve the
@@ -305,6 +300,45 @@ while maintaining the validity of the solution.
 The mutation and crossover operators are applied iteratively to the population
 of chromosomes, guiding the evolutionary process toward optimal or near-optimal
 solutions to the TSP.
+
+\subsection{Implementation using Taichi}
+The Genetic Algorithm (GA) for the Traveling Salesman Problem (TSP) was
+implemented using Taichi, a high-performance computing language designed for
+parallel processing. Since Taichi lang is built on Python, the implementation
+required minimal changes to the existing GA code, making it easy to leverage
+the power of GPUs for accelerating the evolutionary process. The implementation
+consisted of the following steps:
+
+\subsubsection{Population Initialization}
+The population of chromosomes was initialized using Taichi's data structures
+and parallel computing capabilities. As Taichi leverages GPU for parallel
+processing, it requires defining the data structures and operations in a way
+that can be efficiently executed on the GPU. Taichi supports 2D arrays which it
+converts to linear arrays for GPU processing. The population of chromosomes was
+represented as a 2D array, where each row corresponds to a chromosome.
+
+% Show the population initialization code here
+\begin{lstlisting}
+    population = ti.field(dtype=ti.int32, shape=(population_size, chromosome_size))
+    @ti.kernel
+    def init_population():
+        for i in range(population_size):
+            for j in range(chromosome_size):
+                population[i, j] = j + 1
+            shuffle(i)
+            calculate_fitness(i)
+\end{lstlisting}
+
+The population was initialized by assigning each chromosome a unique order of
+cities and calculating its fitness based on the TSP fitness function. The
+shuffle function randomly permutes the order of cities in the chromosome to
+introduce diversity in the initial population.
+
+Taichi provides a kernel decorator to define parallel kernels that can be
+executed on the GPU. The outer loop in the init\_population kernel is executed
+in parallel, with each thread handling a different chromosome in the population.
+
+
 \section{Experimentation and Results}
 \subsection{System Configuration}
 The system used for the experiments was a desktop computer with the following
@@ -332,8 +366,11 @@ runtime performance of the GA using Taichi and leverage the GPU acceleration to
 speed up the evolutionary process.
 
 \subsection{Results}
-
-\section{Conclusion and Discussion}
+The results of the experiments demonstrated the effectiveness of the GPU
+accelerated GA implemented using Taichi. The runtime performance of the GA was
+significantly improved by leveraging the parallel computing capabilities of the
+GPU.
+\section{Future Work and Conclusion}
 
 \section{Bibliography}
 
