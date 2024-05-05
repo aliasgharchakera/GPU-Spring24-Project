@@ -39,7 +39,7 @@ for i in population_data_gpu.values():
         if j[0] == 10000:
             y_gpu_population.append(j[1])
 
-plt.plot(x_population, y_gpu_population, marker='o')
+plt.plot(x_population, y_gpu_population)
 plt.title('GPU Runtime vs Population Size (Generations: 10k)')
 plt.xlabel('Population Size')
 plt.ylabel('Runtime (seconds)')
@@ -57,7 +57,7 @@ for i in population_data_gpu.items():
             x_generation.append(j[0])
             y_gpu_generation.append(j[1])
 
-# plt.plot(x_generation, y_gpu_generation, marker='o')
+# plt.plot(x_generation, y_gpu_generation)
 plt.title('GPU Runtime vs Generations (Population Size: 1k)')
 plt.xlabel('Generations')
 plt.ylabel('Runtime (seconds)')
@@ -100,12 +100,13 @@ for i in population_data_cpu.items():
             x_cpu_generation.append(j[0])
             y_cpu_generation.append(j[1])
 
-# plt.plot(x_generation, y_cpu_generation, marker='o')
-plt.plot(x_generation, y_gpu_generation, marker='o')
-plt.plot(x_generation, y_cpu_generation, marker='o')
+# plt.plot(x_generation, y_cpu_generation)
+plt.plot(x_generation, y_gpu_generation, label='GPU')
+plt.plot(x_generation, y_cpu_generation, label='CPU')
 plt.title('Runtime vs Generations (Population Size: 1k)')
 plt.xlabel('Generations')
 plt.ylabel('Runtime (seconds)')
 plt.legend()
 plt.grid(True)
+plt.savefig('runtime_vs_generations.png')  # Save the figure
 plt.show()
